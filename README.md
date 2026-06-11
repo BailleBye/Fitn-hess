@@ -46,3 +46,25 @@ L'import fusionne (pas d'écrasement, déduplication par id).
 Dans `index.html`, tableau `EX` : `t` = `n` (normal) / `bw` (poids de corps) / `as`
 (assisté), `uni:1` = unilatéral par défaut, `P`/`S` = muscles principaux/secondaires
 (clés dans `ZONES`).
+
+## Le cri de Goggins 🔊
+
+À chaque exercice ajouté pendant une séance, une phrase style David Goggins est
+gueulée via la synthèse vocale iOS (voix anglaise grave). Les phrases sont dans
+le tableau `GOGGINS` d'`index.html` — ajoute/retire ce que tu veux.
+
+Pour sa **vraie voix** : je ne peux pas distribuer ses enregistrements (protégés),
+mais pour ton usage perso tu peux déposer tes propres clips mp3 à côté
+d'`index.html` (ex. dossier `goggins/`) et les lister dans le tableau
+`GOGGINS_AUDIO` : `const GOGGINS_AUDIO=['goggins/stayhard.mp3','goggins/boats.mp3'];`
+S'il n'est pas vide, l'app joue un clip au hasard au lieu de la synthèse vocale.
+
+Note iOS : le son marche car l'ajout d'exercice est un tap (geste utilisateur
+requis par Safari pour l'audio). Vérifie que l'iPhone n'est pas en mode silencieux.
+
+## Modifier le diagramme corporel
+
+La silhouette est générée depuis `BODY_R` (liste de points du demi-contour droit,
+mirroir automatique, lissage en boucle fermée). Les zones musculaires sont dans
+`HALF_F`/`CENT_F` (face) et `HALF_B`/`CENT_B` (dos) — des paths SVG en
+coordonnées locales (centre x=110). Déplace les points pour ajuster les formes.

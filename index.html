@@ -178,6 +178,7 @@ input.f,select.f{width:100%;padding:13px 14px;border-radius:14px;background:var(
 svg .zn{fill:var(--zone);stroke:var(--bg);stroke-width:1.2}
 svg .zn.P{fill:var(--grn)} svg .zn.S{fill:var(--grn-lt)}
 svg .gray{fill:#232327}
+svg .bod{fill:#26262b;stroke:#3b3b42;stroke-width:1}
 </style>
 </head>
 <body>
@@ -256,7 +257,27 @@ const QUOTES=[
 
 /* ================= DIAGRAMME SVG ================= */
 /* Demi-corps droit défini, miroir automatique. Style stylisé inspiré d'Arrow. */
-const HALF_F={ // face, cx=110
+/* Demi-corps droit défini, miroir automatique autour de x=110 (coord. locales). */
+function smoothClosed(pts){ // boucle fermée lissée : chaque point devient un point de contrôle
+ const n=pts.length,mid=(a,b)=>((a[0]+b[0])/2).toFixed(1)+','+((a[1]+b[1])/2).toFixed(1);
+ let d='M'+mid(pts[n-1],pts[0]);
+ for(let i=0;i<n;i++){const p=pts[i],q=pts[(i+1)%n];
+  d+=` Q${p[0]},${p[1]} ${mid(p,q)}`}
+ return d+' Z'}
+const BODY_R=[ // contour droit : sommet du crâne -> entrejambe
+ [110,4],[122,7],[128,17],[127,28],[121,38],[116,43],
+ [115,48],[124,51],[140,55],[154,61],[162,71],
+ [166,92],[167,114],[163,138],[158,164],[159,182],[154,194],[148,196],
+ [146,184],[145,166],[147,142],[146,116],[143,96],[138,86],
+ [135,98],[129,128],[131,152],[139,170],[143,190],
+ [144,214],[141,246],[134,272],[136,296],[133,326],[126,352],
+ [129,362],[124,372],[114,371],[113,356],[112,330],[114,300],[115,276],[113,248],[112,222],[110,198]
+];
+function bodyOutline(){
+ const left=BODY_R.map(([x,y])=>[220-x,y]).reverse().filter(p=>p[0]!==110); // évite les doublons au sommet/entrejambe
+ return smoothClosed(BODY_R.concat(left))}
+const HALF_F={ // face
+ traps:'M116,47 Q132,50 143,57 L138,63 Q126,57 115,54 Z',
  pecs:'M112,62 Q138,60 144,74 Q145,92 128,97 Q114,96 112,88 Z',
  dant:'M140,58 Q150,55 154,64 L149,76 Q144,69 141,64 Z',
  dlat:'M155,62 Q165,66 165,80 L157,92 Q152,80 151,69 Z',
@@ -271,9 +292,8 @@ const HALF_F={ // face, cx=110
 const CENT_F={
  pelv:'M94,166 L126,166 Q125,187 110,191 Q95,187 94,166 Z',
  abs:'M100,100 L120,100 Q123,135 118,168 Q110,176 102,168 Q97,135 100,100 Z',
- traps:'M110,46 L142,58 L120,62 L110,60 L100,62 L78,58 Z',
 };
-const HALF_B={ // dos, cx=110
+const HALF_B={ // dos
  dpost:'M138,60 Q148,57 152,66 L147,80 Q142,71 139,65 Z',
  dlat:'M153,64 Q163,69 163,82 L155,93 Q150,81 149,70 Z',
  tri:'M152,97 Q162,100 161,119 Q159,135 151,140 Q146,125 147,107 Z',
@@ -291,24 +311,17 @@ const CENT_B={
 function half(paths){
  let s='';
  for(const[z,d]of Object.entries(paths))s+=`<path class="zn z-${z}" d="${d}"/>`;
- return `<g>${s}</g><g transform="translate(220,0) scale(-1,1)">${s}</g>`;
-}
-function figure(halfP,centP,cx,feetY){
+ return `<g>${s}</g><g transform="translate(220,0) scale(-1,1)">${s}</g>`}
+function figure(halfP,centP,cx){
  let c='';
- for(const[z,d]of Object.entries(centP)) c+=`<path class="zn z-${z}" d="${d}"/>`;
+ for(const[z,d]of Object.entries(centP))c+=`<path class="zn z-${z}" d="${d}"/>`;
  return `<g transform="translate(${cx-110},0)">
-   <ellipse class="gray" cx="110" cy="24" rx="13" ry="15"/>
-   <rect class="gray" x="102" y="37" width="16" height="11" rx="4"/>
-   <ellipse class="gray" cx="151" cy="200" rx="6" ry="9"/>
-   <ellipse class="gray" cx="69" cy="200" rx="6" ry="9"/>
-   <ellipse class="gray" cx="121" cy="${feetY}" rx="7" ry="9"/>
-   <ellipse class="gray" cx="99" cy="${feetY}" rx="7" ry="9"/>
+   <path class="bod" d="${bodyOutline()}"/>
    ${c}${half(halfP)}
- </g>`;
-}
+ </g>`}
 function diagSVG(map){ // map: {zone:'P'|'S'}
  const svg=`<svg viewBox="0 0 460 395" xmlns="http://www.w3.org/2000/svg">
-   ${figure(HALF_F,CENT_F,115,366)}${figure(HALF_B,CENT_B,345,384)}</svg>`;
+   ${figure(HALF_F,CENT_F,115)}${figure(HALF_B,CENT_B,345)}</svg>`;
  const div=document.createElement('div');div.innerHTML=svg;
  for(const[z,v]of Object.entries(map||{}))
    div.querySelectorAll('.z-'+z).forEach(p=>p.classList.add(v));
@@ -549,7 +562,7 @@ function exCard(e,i){
   <div class="rowbtns"><button onclick="addRow(${i})">+ Série</button><button onclick="delRow(${i})">− Série</button></div>
   <div class="minidiag">${diagSVG(muscleMap([e]))}</div></div>`;
 }
-function addExercise(exId){S.active.ex.push(newExEntry(exId));saveDraft();renderCards();
+function addExercise(exId){S.active.ex.push(newExEntry(exId));goggins();saveDraft();renderCards();
  setTimeout(()=>{const c=$('#cards');if(c&&c.scrollTo)c.scrollTo({left:c.scrollWidth,behavior:'smooth'})},50)}
 function removeExercise(i){if(!confirm('Supprimer cet exercice du workout ?'))return;
  S.active.ex.splice(i,1);saveDraft();renderCards()}
@@ -615,6 +628,44 @@ function endQuote(){
  const q=QUOTES[Math.floor(Math.random()*QUOTES.length)];
  overlay(`<div class="endwrap"><div class="quote"><div class="mark">“</div><p>${q}</p></div></div>`,true);
  setTimeout(()=>{closeOvl();S.tab='home';render()},3200)}
+
+/* ================= GOGGINS ================= */
+/* Synthèse vocale par défaut (voix grave EN). Pour la vraie voix : dépose tes
+   propres clips mp3 à côté d'index.html et liste-les dans GOGGINS_AUDIO,
+   ex: ['goggins/stayhard.mp3','goggins/boats.mp3'] — lus au hasard. */
+const GOGGINS_AUDIO=[];
+const GOGGINS=[
+ "Stay hard!",
+ "Who's gonna carry the boats?! And the logs!",
+ "They don't know me, son!",
+ "You don't know me, son!",
+ "Get after it!",
+ "No excuses. Get to work.",
+ "Callous your mind!",
+ "Taking souls!",
+ "One more rep. Stay hard!",
+ "Nobody cares. Work harder.",
+ "Be uncommon amongst uncommon people.",
+ "When you think you're done, you're only at forty percent!",
+ "Merry Christmas! Now get back to work.",
+ "The only way out is through!",
+];
+let gogVoice=null;
+function pickGogVoice(){try{
+ const vs=speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.startsWith('en'));
+ gogVoice=vs.find(v=>/Aaron|Daniel|Fred|Alex|Male/i.test(v.name))||vs[0]||null;
+}catch(e){}}
+if('speechSynthesis'in window){pickGogVoice();speechSynthesis.onvoiceschanged=pickGogVoice}
+function goggins(){try{
+ if(GOGGINS_AUDIO.length){
+  const a=new Audio(GOGGINS_AUDIO[Math.floor(Math.random()*GOGGINS_AUDIO.length)]);
+  a.play().catch(()=>{});return}
+ if(!('speechSynthesis'in window))return;
+ const u=new SpeechSynthesisUtterance(GOGGINS[Math.floor(Math.random()*GOGGINS.length)]);
+ u.lang='en-US';u.rate=1.05;u.pitch=0.5;u.volume=1;
+ if(gogVoice)u.voice=gogVoice;
+ speechSynthesis.cancel();speechSynthesis.speak(u);
+}catch(e){}}
 
 /* ================= RECHERCHE EXERCICE ================= */
 let searchCb=null;
