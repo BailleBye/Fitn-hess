@@ -631,9 +631,10 @@ function endQuote(){
 
 /* ================= GOGGINS ================= */
 /* Synthèse vocale par défaut (voix grave EN). Pour la vraie voix : dépose tes
-   propres clips mp3 à côté d'index.html et liste-les dans GOGGINS_AUDIO,
-   ex: ['goggins/stayhard.mp3','goggins/boats.mp3'] — lus au hasard. */
-const GOGGINS_AUDIO=[];
+   propres clips audio à côté d'index.html et liste-les dans GOGGINS_AUDIO,
+   ex: ['goggins/stayhard.m4a','goggins/boats.mp3'] — lus au hasard.
+   Formats OK sur Safari iOS : m4a/AAC, mp3, wav, aiff. PAS ogg/opus (à convertir). */
+const GOGGINS_AUDIO=['sounds/lightweight-1.mp3','sounds/lightweight-2.mp3','sounds/lightweight-3.mp3'];
 const GOGGINS=[
  "Stay hard!",
  "Who's gonna carry the boats?! And the logs!",
@@ -657,11 +658,15 @@ function pickGogVoice(){try{
 }catch(e){}}
 if('speechSynthesis'in window){pickGogVoice();speechSynthesis.onvoiceschanged=pickGogVoice}
 function goggins(){try{
- if(GOGGINS_AUDIO.length){
-  const a=new Audio(GOGGINS_AUDIO[Math.floor(Math.random()*GOGGINS_AUDIO.length)]);
-  a.play().catch(()=>{});return}
- if(!('speechSynthesis'in window))return;
- const u=new SpeechSynthesisUtterance(GOGGINS[Math.floor(Math.random()*GOGGINS.length)]);
+ // pool commun : chaque clip audio et chaque phrase TTS a la même probabilité.
+ // Pour ne garder QUE les clips : vide le tableau GOGGINS. L'inverse : vide GOGGINS_AUDIO.
+ const tts=('speechSynthesis'in window)?GOGGINS:[];
+ const pool=GOGGINS_AUDIO.length+tts.length;
+ if(!pool)return;
+ const i=Math.floor(Math.random()*pool);
+ if(i<GOGGINS_AUDIO.length){
+  const a=new Audio(GOGGINS_AUDIO[i]);a.play().catch(()=>{});return}
+ const u=new SpeechSynthesisUtterance(tts[i-GOGGINS_AUDIO.length]);
  u.lang='en-US';u.rate=1.05;u.pitch=0.5;u.volume=1;
  if(gogVoice)u.voice=gogVoice;
  speechSynthesis.cancel();speechSynthesis.speak(u);

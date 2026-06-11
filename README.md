@@ -7,6 +7,7 @@ App 100 % locale : aucune donnée ne quitte ton iPhone. Pas de compte, pas de ba
 - `manifest.json` — manifest PWA
 - `sw.js` — service worker (fonctionnement hors-ligne)
 - `icon.png` — icône d'écran d'accueil
+- `sounds/` — clips audio (Ronnie Coleman), à uploader avec le reste
 
 ## Installation sur iPhone (5 minutes)
 
@@ -47,17 +48,26 @@ Dans `index.html`, tableau `EX` : `t` = `n` (normal) / `bw` (poids de corps) / `
 (assisté), `uni:1` = unilatéral par défaut, `P`/`S` = muscles principaux/secondaires
 (clés dans `ZONES`).
 
-## Le cri de Goggins 🔊
+## Le cri de Goggins / Ronnie Coleman 🔊
 
-À chaque exercice ajouté pendant une séance, une phrase style David Goggins est
-gueulée via la synthèse vocale iOS (voix anglaise grave). Les phrases sont dans
-le tableau `GOGGINS` d'`index.html` — ajoute/retire ce que tu veux.
+À chaque exercice ajouté pendant une séance, l'app tire au hasard dans un pool
+commun : les 3 clips Ronnie Coleman « Light weight baby! » (dossier `sounds/`,
+volume normalisé) **et** les phrases style Goggins en synthèse vocale (voix
+anglaise grave, tableau `GOGGINS`). Pour ne garder que les clips : vide le
+tableau `GOGGINS`. Pour ne garder que la synthèse : vide `GOGGINS_AUDIO`.
+Ajoute d'autres clips en les déposant dans `sounds/` et en les listant dans
+`GOGGINS_AUDIO`.
 
 Pour sa **vraie voix** : je ne peux pas distribuer ses enregistrements (protégés),
-mais pour ton usage perso tu peux déposer tes propres clips mp3 à côté
+mais pour ton usage perso tu peux déposer tes propres clips audio à côté
 d'`index.html` (ex. dossier `goggins/`) et les lister dans le tableau
-`GOGGINS_AUDIO` : `const GOGGINS_AUDIO=['goggins/stayhard.mp3','goggins/boats.mp3'];`
+`GOGGINS_AUDIO` : `const GOGGINS_AUDIO=['goggins/stayhard.m4a','goggins/boats.mp3'];`
 S'il n'est pas vide, l'app joue un clip au hasard au lieu de la synthèse vocale.
+
+**Formats supportés par Safari iOS** : m4a/AAC (mémos vocaux iPhone, la plupart
+des rips), mp3, wav, aiff. **Non supportés** : ogg, opus — convertis-les en m4a
+ou mp3 (sur Mac : `afconvert input.ogg output.m4a -f m4af -d aac`, sinon
+n'importe quel convertisseur en ligne).
 
 Note iOS : le son marche car l'ajout d'exercice est un tap (geste utilisateur
 requis par Safari pour l'audio). Vérifie que l'iPhone n'est pas en mode silencieux.

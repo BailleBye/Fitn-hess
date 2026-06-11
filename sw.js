@@ -1,5 +1,6 @@
-const CACHE = 'fitlog-v1';
-const ASSETS = ['./', './index.html', './manifest.json', './icon.png'];
+const CACHE = 'fitlog-v2';
+const ASSETS = ['./', './index.html', './manifest.json', './icon.png',
+  './sounds/lightweight-1.mp3', './sounds/lightweight-2.mp3', './sounds/lightweight-3.mp3'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
