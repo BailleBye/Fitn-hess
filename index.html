@@ -635,22 +635,9 @@ function endQuote(){
    ex: ['goggins/stayhard.m4a','goggins/boats.mp3'] — lus au hasard.
    Formats OK sur Safari iOS : m4a/AAC, mp3, wav, aiff. PAS ogg/opus (à convertir). */
 const GOGGINS_AUDIO=['sounds/lightweight-1.mp3','sounds/lightweight-2.mp3','sounds/lightweight-3.mp3'];
-const GOGGINS=[
- "Stay hard!",
- "Who's gonna carry the boats?! And the logs!",
- "They don't know me, son!",
- "You don't know me, son!",
- "Get after it!",
- "No excuses. Get to work.",
- "Callous your mind!",
- "Taking souls!",
- "One more rep. Stay hard!",
- "Nobody cares. Work harder.",
- "Be uncommon amongst uncommon people.",
- "When you think you're done, you're only at forty percent!",
- "Merry Christmas! Now get back to work.",
- "The only way out is through!",
-];
+const GOGGINS=[]; // synthèse vocale désactivée — que les clips Ronnie (sounds/)
+/* Pour réactiver les phrases Goggins en TTS, remets des phrases ici, ex:
+   const GOGGINS=["Stay hard!","Who's gonna carry the boats?!"]; */
 let gogVoice=null;
 function pickGogVoice(){try{
  const vs=speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.startsWith('en'));
